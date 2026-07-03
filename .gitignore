@@ -1,0 +1,20 @@
+node_modules/
+
+# Local secrets and browser login state
+.env
+.env.*
+!.env.example
+sessions/
+
+# Generated reports, screenshots, and local run artifacts
+/output/
+*.txt
+*.log
+
+# Local machine/editor noise
+.DS_Store
+.idea/
+.vscode/
+
+# Temporary local scripts
+scripts/test-*.js

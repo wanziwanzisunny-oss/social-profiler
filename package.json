@@ -1,0 +1,24 @@
+{
+  "name": "social-profiler",
+  "version": "0.1.0",
+  "description": "社交媒体客户画像工具 — 浏览器自动化采集 + LLM 分析",
+  "type": "module",
+  "bin": {
+    "social-profiler": "./src/cli.js"
+  },
+  "scripts": {
+    "start": "node src/cli.js",
+    "web": "node src/web/server.js",
+    "session:login": "node src/cli.js session login",
+    "session:check": "node src/cli.js session status"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.20.0",
+    "chalk": "^5.3.0",
+    "commander": "^12.0.0",
+    "dotenv": "^16.4.0",
+    "express": "^5.2.1",
+    "ora": "^8.0.0",
+    "playwright": "^1.40.0"
+  }
+}
