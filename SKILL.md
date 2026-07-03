@@ -1,6 +1,6 @@
 ---
 name: social-profiler
-description: Run and maintain the Social Profiler prospect-research workflow. Use when a user wants Codex to research a person or company from public social/web sources, generate a customer profile report, manage Social Profiler browser sessions, send reports to Feishu, operate the local Web UI or CLI, or prepare this repository as a GitHub-hosted Codex skill.
+description: Run and maintain the Social Profiler prospect-research workflow. Use when a user wants an agent to research a person or company from public social/web sources, generate a customer profile report, manage Social Profiler browser sessions, send reports to Feishu, operate the local Web UI or CLI, or prepare this repository as a GitHub-hosted skill.
 ---
 
 # Social Profiler
@@ -29,7 +29,7 @@ Configure `.env`:
 ```env
 ANTHROPIC_API_KEY=your_key_here
 ANTHROPIC_BASE_URL=https://api.anthropic.com
-ANTHROPIC_MODEL=claude-sonnet-4-20250514
+ANTHROPIC_MODEL=your_model_name
 CDP_ENDPOINT=http://localhost:9222
 ```
 

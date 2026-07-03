@@ -2,7 +2,7 @@
 
 [中文说明](README.zh-CN.md)
 
-Social Profiler is a Codex skill and local Node.js tool for prospect research. It helps gather public web and social-profile evidence, merge it into a customer profile, analyze it with an LLM, and export or send the resulting report.
+Social Profiler is a locally runnable customer profile research tool. It helps gather public web and social-profile evidence, merge it into a customer profile, analyze it with an LLM, and export or send the resulting report.
 
 It is designed for sales and BD research where the user controls the local environment, credentials, and browser sessions.
 
@@ -32,7 +32,7 @@ It is designed for sales and BD research where the user controls the local envir
 
 ```text
 .
-├── SKILL.md                 # Codex skill instructions
+├── SKILL.md                 # Skill instructions
 ├── agents/openai.yaml       # Skill UI metadata
 ├── src/                     # CLI, Web UI, scraping, analysis, output code
 ├── tests/                   # Node test suite
@@ -53,18 +53,17 @@ output/
 debug screenshots
 ```
 
-## Install As A Codex Skill
+## Install As A Skill
 
-After publishing this clean repository to GitHub, install or clone it as the `social-profiler` skill in your Codex skills directory. The exact install command depends on your Codex environment; the important part is that the installed folder contains `SKILL.md`, `agents/openai.yaml`, and the project files.
+After publishing this clean repository to GitHub, install or clone it as the `social-profiler` skill in your skills directory. The exact path depends on your runtime environment; the important part is that the installed folder contains `SKILL.md`, `agents/openai.yaml`, and the project files.
 
 Manual install:
 
 ```bash
-mkdir -p "${CODEX_HOME:-$HOME/.codex}/skills"
-git clone https://github.com/<owner>/<repo>.git "${CODEX_HOME:-$HOME/.codex}/skills/social-profiler"
+git clone https://github.com/<owner>/<repo>.git <your-skills-dir>/social-profiler
 ```
 
-Restart Codex after installing so the new skill can be discovered.
+Restart your app after installing so the new skill can be discovered.
 
 ## Local Setup
 
@@ -80,12 +79,12 @@ Create local config:
 cp .env.example .env
 ```
 
-Configure the required LLM settings:
+Fill in your own LLM service settings:
 
 ```env
-ANTHROPIC_API_KEY=your_key_here
-ANTHROPIC_BASE_URL=https://api.anthropic.com
-ANTHROPIC_MODEL=claude-sonnet-4-20250514
+ANTHROPIC_API_KEY=your_llm_api_key
+ANTHROPIC_BASE_URL=https://your-llm-endpoint.example.com
+ANTHROPIC_MODEL=your_model_name
 ```
 
 Optional browser and Feishu settings:
@@ -184,26 +183,9 @@ If `FEISHU_CHAT_ID` is set, reports are sent to that chat. If it is not set, the
 
 If `PUBLIC_BASE_URL` is not set, report links default to `http://localhost:3000`, which usually only works on the same machine.
 
-## Privacy And Security
+## Local Data Note
 
-Before publishing or pushing changes:
-
-```bash
-git status --short --ignored
-git ls-files | rg -n '(^\.env$|^\.env\.(?!example$)|^sessions/|^output/|^node_modules/|^.*social-profiler\.txt$|^\.DS_Store$)'
-```
-
-Then run your preferred secret scanner across the repository history and current files. Look specifically for API keys, private keys, browser tokens, access tokens, refresh tokens, authorization headers, cookies, and saved browser storage.
-
-Do not publish:
-
-- `.env` or any local environment file.
-- `sessions/` browser storage files.
-- `output/` reports, screenshots, debug images, PDFs, Markdown, or JSON results.
-- Terminal transcripts or old development logs.
-- Real customer, prospect, contact, cookie, token, or API-key data.
-
-If a real key was ever committed, rotate it before publishing.
+`.env`, `sessions/`, `output/`, debug screenshots, run logs, and exported reports may contain API keys, login state, contacts, or customer profile data. Do not commit them to Git. These paths are covered by `.gitignore`; if a real key was ever committed, rotate it before publishing.
 
 ## Validation
 
@@ -219,12 +201,3 @@ Expected result:
 60 pass
 0 fail
 ```
-
-## Public Release Checklist
-
-1. Use a clean repository with no old private Git history.
-2. Confirm only source, tests, prompts, scripts, README, `SKILL.md`, `agents/openai.yaml`, `.gitignore`, and `.env.example` are tracked.
-3. Run the tests.
-4. Run the secret scans above.
-5. Push this clean repository to GitHub.
-6. Install or clone the GitHub repo into the Codex skills directory.
