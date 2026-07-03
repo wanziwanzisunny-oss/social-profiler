@@ -1,5 +1,7 @@
 # Social Profiler
 
+[中文说明](README.zh-CN.md)
+
 Social Profiler is a Codex skill and local Node.js tool for prospect research. It helps gather public web and social-profile evidence, merge it into a customer profile, analyze it with an LLM, and export or send the resulting report.
 
 It is designed for sales and BD research where the user controls the local environment, credentials, and browser sessions.
