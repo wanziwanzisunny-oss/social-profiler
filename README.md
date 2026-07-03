@@ -183,9 +183,11 @@ If `FEISHU_CHAT_ID` is set, reports are sent to that chat. If it is not set, the
 
 If `PUBLIC_BASE_URL` is not set, report links default to `http://localhost:3000`, which usually only works on the same machine.
 
-## Local Data Note
+## Privacy And Security
 
 `.env`, `sessions/`, `output/`, debug screenshots, run logs, and exported reports may contain API keys, login state, contacts, or customer profile data. Do not commit them to Git. These paths are covered by `.gitignore`; if a real key was ever committed, rotate it before publishing.
+
+AI-generated reports and analysis are for reference only. Before using or sharing a report externally, manually verify source reliability, contact details, account matches, and inferred conclusions.
 
 ## Validation
 
