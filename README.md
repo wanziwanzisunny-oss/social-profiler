@@ -32,7 +32,8 @@ It is designed for sales and BD research where the user controls the local envir
 
 ```text
 .
-├── SKILL.md                 # Skill instructions
+├── SKILL.md                 # Skill instructions, English entrypoint
+├── SKILL.zh-CN.md           # Skill instructions, Chinese reference
 ├── agents/openai.yaml       # Skill UI metadata
 ├── src/                     # CLI, Web UI, scraping, analysis, output code
 ├── tests/                   # Node test suite
@@ -55,7 +56,7 @@ debug screenshots
 
 ## Install As A Skill
 
-After publishing this clean repository to GitHub, install or clone it as the `social-profiler` skill in your skills directory. The exact path depends on your runtime environment; the important part is that the installed folder contains `SKILL.md`, `agents/openai.yaml`, and the project files.
+After publishing this clean repository to GitHub, install or clone it as the `social-profiler` skill in your skills directory. The exact path depends on your runtime environment; the important part is that the installed folder contains `SKILL.md`, `agents/openai.yaml`, and the project files. Chinese instructions are available in `SKILL.zh-CN.md`.
 
 Manual install:
 

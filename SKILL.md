@@ -7,6 +7,8 @@ description: Run and maintain the Social Profiler prospect-research workflow. Us
 
 Use this skill to operate the Social Profiler tool safely and reproducibly.
 
+Chinese reference: see `SKILL.zh-CN.md`.
+
 ## Safety Boundaries
 
 - Treat `.env`, `sessions/`, root `output/`, debug screenshots, logs, exported reports, and generated PDFs as private local data.
@@ -31,8 +33,8 @@ cp .env.example .env
 Configure `.env`:
 
 ```env
-ANTHROPIC_API_KEY=your_key_here
-ANTHROPIC_BASE_URL=https://api.anthropic.com
+ANTHROPIC_API_KEY=your_llm_api_key
+ANTHROPIC_BASE_URL=https://your-llm-endpoint.example.com
 ANTHROPIC_MODEL=your_model_name
 CDP_ENDPOINT=http://localhost:9222
 ```
