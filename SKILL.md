@@ -12,7 +12,11 @@ Use this skill to operate the Social Profiler tool safely and reproducibly.
 - Treat `.env`, `sessions/`, root `output/`, debug screenshots, logs, exported reports, and generated PDFs as private local data.
 - Never commit API keys, browser storage state, cookies, customer reports, or screenshots.
 - Use only public information or browser sessions the user explicitly owns and authorizes.
+- Do not bypass access controls, collect non-public content, or retain information unrelated to the user's stated business purpose.
+- Avoid sensitive personal information and protected categories; do not use reports for harassment, discrimination, surveillance, or automated high-impact decisions.
+- Consider applicable privacy laws, platform terms, and notice or consent obligations before commercial, cross-border, or large-scale use.
 - Keep source trust warnings visible in final reports; do not present low-confidence account matches as facts.
+- Treat AI-generated analysis as reference material that requires human verification before external use.
 - If preparing a public GitHub repo, scan staged files and history for secrets before any push.
 
 ## Setup

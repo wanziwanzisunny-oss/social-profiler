@@ -187,7 +187,13 @@ If `PUBLIC_BASE_URL` is not set, report links default to `http://localhost:3000`
 
 `.env`, `sessions/`, `output/`, debug screenshots, run logs, and exported reports may contain API keys, login state, contacts, or customer profile data. Do not commit them to Git. These paths are covered by `.gitignore`; if a real key was ever committed, rotate it before publishing.
 
-AI-generated reports and analysis are for reference only. Before using or sharing a report externally, manually verify source reliability, contact details, account matches, and inferred conclusions.
+Social Profiler may process personal information. Use it only with public information or browser sessions you are authorized to access. Do not bypass access controls, collect non-public content, or retain information that is not relevant to the business purpose. Publicly visible information is not automatically unrestricted for collection, storage, or sharing.
+
+Avoid collecting or inferring sensitive personal information, including health, religion, political views, minors' information, identity documents, financial accounts, or similar categories. Do not use this tool for harassment, discrimination, surveillance, or automated decisions that significantly affect people, such as hiring, credit, insurance, or housing decisions.
+
+Privacy requirements vary by jurisdiction, platform, and use case. Before commercial, cross-border, or large-scale use, assess applicable laws, platform terms, and notice or consent obligations.
+
+AI-generated reports and analysis are for reference only. Before using or sharing a report externally, manually verify source reliability, contact details, account matches, and inferred conclusions, and respect deletion, correction, or opt-out requests.
 
 ## Validation
 
