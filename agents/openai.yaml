@@ -1,0 +1,4 @@
+interface:
+  display_name: "Social Profiler"
+  short_description: "Run public social-profile research workflows"
+  default_prompt: "Use $social-profiler to research a prospect and generate a customer profile report."
