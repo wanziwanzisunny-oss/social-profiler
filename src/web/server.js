@@ -4,6 +4,7 @@ import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
 import { config } from '../config.js';
 import { startChromeForCdp } from './chrome.js';
+import { basenameFromAnyPath } from '../utils/path.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -131,7 +132,7 @@ app.get('/api/report/:filename/html', async (req, res) => {
     const htmlContent = generateHtml(data, data.analysis || {});
     const htmlPath = await writeHtml(htmlContent, filename.replace('.json', '.html'));
 
-    const htmlName = htmlPath.split('/').pop();
+    const htmlName = basenameFromAnyPath(htmlPath);
     res.json({ filename: htmlName, url: '/output/' + htmlName });
   } catch (err) {
     res.status(500).json({ error: 'HTML 生成失败: ' + err.message });

@@ -412,7 +412,7 @@
           break;
         case 'result':
           currentData = data;
-          currentFilename = data.files?.json?.split('/').pop() || null;
+          currentFilename = basenameFromAnyPath(data.files?.json) || null;
           completeAllPhases();
           stopLookupStatusTimer();
           setLookupStatus('查询完成');
@@ -426,6 +426,10 @@
           addLog('❌ ' + data.message);
           break;
       }
+    }
+
+    function basenameFromAnyPath(value) {
+      return String(value || '').split(/[\\/]/).filter(Boolean).pop() || '';
     }
 
     function processSSEChunk(chunk) {
