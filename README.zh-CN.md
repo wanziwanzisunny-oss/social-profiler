@@ -93,10 +93,13 @@ ANTHROPIC_MODEL=your_model_name
 可选浏览器和飞书设置：
 
 ```env
+CHROME_PATH=
 CDP_ENDPOINT=http://localhost:9222
 FEISHU_CHAT_ID=oc_xxx
 PUBLIC_BASE_URL=http://localhost:3000
 ```
+
+Windows 如果点击 Web UI 里的 Chrome 连接失败，可把 `CHROME_PATH` 设置为本机 Chrome 路径，例如 `C:\Program Files\Google\Chrome\Application\chrome.exe`。
 
 ## 浏览器登录态
 

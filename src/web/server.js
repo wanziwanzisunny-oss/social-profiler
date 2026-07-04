@@ -2,9 +2,8 @@ import express from 'express';
 import path from 'path';
 import fs from 'fs/promises';
 import { fileURLToPath } from 'url';
-import os from 'os';
-import { spawn } from 'child_process';
 import { config } from '../config.js';
+import { startChromeForCdp } from './chrome.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -68,29 +67,13 @@ app.get('/api/session/status', async (req, res) => {
 // ==================== API: 启动专用 Chrome ====================
 app.post('/api/session/chrome/start', async (req, res) => {
   try {
-    const chromePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-    const userDataDir = path.join(os.homedir(), '.social-profiler-chrome');
-    const endpoint = new URL(config.browser.cdpEndpoint);
-    const port = endpoint.port || '9222';
-
-    await fs.mkdir(userDataDir, { recursive: true });
-
-    const child = spawn(chromePath, [
-      `--remote-debugging-port=${port}`,
-      `--user-data-dir=${userDataDir}`,
-    ], {
-      detached: true,
-      stdio: 'ignore',
-    });
-    child.unref();
-
-    res.json({
-      ok: true,
-      message: '已启动专用 Chrome',
-      endpoint: config.browser.cdpEndpoint,
-    });
+    const result = await startChromeForCdp();
+    res.json(result);
   } catch (err) {
-    res.status(500).json({ error: `启动 Chrome 失败: ${err.message}` });
+    const message = err.message.startsWith('启动 Chrome 失败')
+      ? err.message
+      : `启动 Chrome 失败: ${err.message}`;
+    res.status(500).json({ error: message });
   }
 });
 

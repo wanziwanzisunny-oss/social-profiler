@@ -126,8 +126,11 @@ sessionCmd
         printer.success(`Chrome CDP: 已连接（真实浏览器模式）`);
       } else {
         printer.warn(`Chrome CDP: 未连接（Playwright 模式）`);
+        const { chromeExecutableCandidates } = await import('./web/chrome.js');
+        const chromeHint = chromeExecutableCandidates()[0] || 'chrome';
         printer.info(`  提示: 启动 Chrome 调试模式可获得更好的反检测效果`);
-        printer.info(`  命令: /Applications/Google\\ Chrome.app/Contents/MacOS/Google\\ Chrome --remote-debugging-port=9222`);
+        printer.info(`  命令: "${chromeHint}" --remote-debugging-port=9222`);
+        printer.info(`  如自动检测失败，可在 .env 设置 CHROME_PATH`);
       }
 
       for (const [platform, info] of Object.entries(sessions)) {

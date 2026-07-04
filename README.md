@@ -91,10 +91,13 @@ ANTHROPIC_MODEL=your_model_name
 Optional browser and Feishu settings:
 
 ```env
+CHROME_PATH=
 CDP_ENDPOINT=http://localhost:9222
 FEISHU_CHAT_ID=oc_xxx
 PUBLIC_BASE_URL=http://localhost:3000
 ```
+
+On Windows, if the Web UI Chrome connection cannot find Chrome automatically, set `CHROME_PATH` to your local Chrome executable, for example `C:\Program Files\Google\Chrome\Application\chrome.exe`.
 
 ## Browser Sessions
 

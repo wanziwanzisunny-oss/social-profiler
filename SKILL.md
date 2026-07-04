@@ -36,6 +36,7 @@ Configure `.env`:
 ANTHROPIC_API_KEY=your_llm_api_key
 ANTHROPIC_BASE_URL=https://your-llm-endpoint.example.com
 ANTHROPIC_MODEL=your_model_name
+CHROME_PATH=
 CDP_ENDPOINT=http://localhost:9222
 ```
 
