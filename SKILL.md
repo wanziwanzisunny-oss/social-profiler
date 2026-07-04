@@ -66,14 +66,6 @@ npm run web
 
 Open `http://localhost:3000`. Use the UI for new lookup, history review, session management, PDF export, and Feishu sending.
 
-For a persistent local service, run:
-
-```bash
-npm run service:install
-```
-
-Then open `http://localhost:3000` directly in the browser. Manage the service with `npm run service:status`, `npm run service:stop`, `npm run service:start`, and `npm run service:uninstall`.
-
 ## CLI
 
 Single lookup:

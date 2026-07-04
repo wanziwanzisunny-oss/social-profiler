@@ -30,6 +30,46 @@ function sourceStatusLine(info = {}) {
     : `- **来源状态**：已纳入画像分析\n`;
 }
 
+function safeList(val) {
+  if (Array.isArray(val)) {
+    return val
+      .map(item => {
+        if (typeof item === 'string') return item.trim();
+        if (typeof item === 'object' && item !== null) {
+          return item.title || item.name || item.text || item.label || JSON.stringify(item);
+        }
+        return String(item ?? '').trim();
+      })
+      .filter(Boolean);
+  }
+  if (typeof val === 'string' && val.trim()) return [val.trim()];
+  return [];
+}
+
+function appendAngleList(title, values) {
+  const items = safeList(values);
+  if (!items.length) return '';
+
+  let md = `### ${title}\n`;
+  items.forEach(item => {
+    md += `- ${item}\n`;
+  });
+  return md + '\n';
+}
+
+function buildAngleMarkdown(angles = {}) {
+  if (!angles) return '';
+
+  const blocks = [
+    appendAngleList('证据依据', angles.evidenceBasis),
+    appendAngleList('业务机会', angles.businessOpportunities),
+    appendAngleList('风险提醒', angles.riskNotes),
+    appendAngleList('下一步行动', angles.nextActions),
+  ].filter(Boolean);
+
+  return blocks.length ? `## 🔎 多角度分析\n\n${blocks.join('')}` : '';
+}
+
 /**
  * 生成 Markdown 格式的客户画像报告
  */
@@ -183,6 +223,10 @@ export function generateMarkdown(data, analysis) {
 **时机判断**：${s.timing || '-'}
 
 `;
+  }
+
+  if (data.query?.depth === 'deep') {
+    md += buildAngleMarkdown(analysis.analysisAngles);
   }
 
   // 数据来源明细

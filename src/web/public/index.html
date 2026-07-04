@@ -594,7 +594,8 @@
         content.innerHTML = marked.parse(data.markdown);
         openReportLinksInNewTab(content);
       } else {
-        content.innerHTML = '<p class="text-gray-500">无 Markdown 报告</p>';
+        content.innerHTML = fallbackReportHTML(data);
+        openReportLinksInNewTab(content);
       }
       // 显示标签
       renderReportTags(data._tags || []);
@@ -632,15 +633,115 @@
     function firstText(value, fallback = '') {
       if (Array.isArray(value)) {
         const hit = value.find(Boolean);
-        return hit ? String(hit) : fallback;
+        return hit ? readableText(hit) : fallback;
       }
-      return value ? String(value) : fallback;
+      return value ? readableText(value) : fallback;
+    }
+
+    function readableText(value) {
+      if (typeof value === 'object' && value !== null) {
+        return String(value.title || value.name || value.text || value.label || JSON.stringify(value));
+      }
+      return String(value);
     }
 
     function shortText(value, max = 150) {
       const text = firstText(value).replace(/\s+/g, ' ').trim();
       if (!text) return '';
       return text.length > max ? `${text.slice(0, max)}...` : text;
+    }
+
+    function valueList(value) {
+      if (Array.isArray(value)) return value.filter(Boolean).map(item => firstText(item)).filter(Boolean);
+      return value ? [readableText(value)] : [];
+    }
+
+    function detailRow(label, value) {
+      const items = valueList(value);
+      if (!items.length) return '';
+      return `<dt>${escapeHTML(label)}</dt><dd>${items.map(escapeHTML).join('、')}</dd>`;
+    }
+
+    function angleList(label, value) {
+      const items = valueList(value);
+      if (!items.length) return '';
+      return `<h4 class="summary-label mt-3">${escapeHTML(label)}</h4><ul>${items.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ul>`;
+    }
+
+    function fallbackAnglesHTML(query, analysis) {
+      if (!(query.depth === 'deep')) return '';
+      const angles = analysis.analysisAngles || {};
+      const blocks = [
+        angleList('证据依据', angles.evidenceBasis),
+        angleList('业务机会', angles.businessOpportunities),
+        angleList('风险提醒', angles.riskNotes),
+        angleList('下一步行动', angles.nextActions),
+      ].filter(Boolean);
+      if (!blocks.length) return '';
+      return `<h3>多角度分析</h3>${blocks.join('')}`;
+    }
+
+    function fallbackReportHTML(data) {
+      const payload = reportPayload(data);
+      const analysis = reportAnalysis(data);
+      const unified = payload.unified || {};
+      const person = analysis.person || {};
+      const company = analysis.company || {};
+      const sales = analysis.salesInsights || {};
+      const query = payload.query || {};
+      const sources = sourceSummary(data);
+
+      const name = unified.name || query.name || '未命名报告';
+      const companyName = company.name || query.company || '';
+      const fetchedAt = payload.fetchedAt ? new Date(payload.fetchedAt).toLocaleString('zh-CN') : '';
+      const entryPoints = Array.isArray(sales.entryPoints) ? sales.entryPoints.filter(Boolean) : [];
+
+      return `
+        <div class="trust-panel">
+          <div class="trust-title">报告内容</div>
+          <div class="summary-title">${escapeHTML(name)}${companyName ? ` @ ${escapeHTML(companyName)}` : ''}</div>
+          ${fetchedAt ? `<div class="summary-text mt-1">生成时间：${escapeHTML(fetchedAt)}</div>` : ''}
+          ${unified.about ? `<blockquote>${escapeHTML(shortText(unified.about, 500))}</blockquote>` : ''}
+
+          <h3>基础信息</h3>
+          <dl class="summary-kv">
+            ${detailRow('职位', unified.headline || person.role)}
+            ${detailRow('所在地', unified.location)}
+            ${detailRow('决策层级', person.decisionLevel)}
+            ${detailRow('专业领域', person.expertise)}
+            ${detailRow('兴趣爱好', person.hobbies)}
+            ${detailRow('沟通风格', person.communicationStyle)}
+          </dl>
+
+          ${(company.mainProducts || company.targetMarket || company.recentNews) ? `
+            <h3>公司信息</h3>
+            <dl class="summary-kv">
+              ${detailRow('主营产品', company.mainProducts)}
+              ${detailRow('目标市场', company.targetMarket)}
+              ${detailRow('近期动态', company.recentNews)}
+            </dl>
+          ` : ''}
+
+          ${(entryPoints.length || sales.suggestedApproach || sales.bestChannel) ? `
+            <h3>商务建议</h3>
+            ${entryPoints.length ? `<ol>${entryPoints.map(item => `<li>${escapeHTML(item)}</li>`).join('')}</ol>` : ''}
+            <dl class="summary-kv">
+              ${detailRow('推荐沟通', sales.suggestedApproach)}
+              ${detailRow('最佳渠道', sales.bestChannel)}
+              ${detailRow('时机判断', sales.timing)}
+            </dl>
+          ` : ''}
+
+          ${fallbackAnglesHTML(query, analysis)}
+
+          ${sources.length ? `
+            <h3>数据来源</h3>
+            <ul>${sources.map(s => `<li>${escapeHTML(s.name)}：${s.excluded ? '仅展示，未纳入画像分析' : '已纳入画像分析'}${s.note ? `（${escapeHTML(s.note)}）` : ''}</li>`).join('')}</ul>
+          ` : ''}
+
+          <p class="text-sm text-gray-500 mt-4">该历史记录没有找到对应 Markdown 文件，以上内容由 JSON 报告自动整理。</p>
+        </div>
+      `;
     }
 
     function renderReportSummary(data) {
@@ -746,10 +847,24 @@
       });
     }
 
+    function reportApiUrl(filename, suffix = '') {
+      return `/api/report/${encodeURIComponent(filename)}${suffix}`;
+    }
+
+    function tagApiUrl(filename) {
+      return `/api/tags/${encodeURIComponent(filename)}`;
+    }
+
+    function outputFileUrl(filename) {
+      return `/output/${encodeURIComponent(filename)}`;
+    }
+
     function renderReportTags(tags) {
       const container = document.getElementById('report-tags');
-      container.innerHTML = tags.map(t => tagHTML(t)).join('') +
-        `<button onclick="openTagModal('${currentFilename}')" class="text-xs text-blue-600 hover:underline ml-1">编辑标签</button>`;
+      const editButton = currentFilename
+        ? `<button data-filename="${escapeAttr(currentFilename)}" onclick="openTagModal(this.dataset.filename)" class="text-xs text-blue-600 hover:underline ml-1">编辑标签</button>`
+        : '';
+      container.innerHTML = tags.map(t => tagHTML(t)).join('') + editButton;
     }
 
     async function downloadPDF() {
@@ -758,7 +873,7 @@
       btn.disabled = true;
       btn.textContent = '生成中...';
       try {
-        const resp = await fetch(`/api/report/${currentFilename}/pdf`);
+        const resp = await fetch(reportApiUrl(currentFilename, '/pdf'));
         if (!resp.ok) throw new Error('PDF 生成失败');
         const blob = await resp.blob();
         const url = URL.createObjectURL(blob);
@@ -778,7 +893,7 @@
       btn.disabled = true;
       btn.textContent = '生成中...';
       try {
-        const resp = await fetch(`/api/report/${currentFilename}/html`);
+        const resp = await fetch(reportApiUrl(currentFilename, '/html'));
         const data = await resp.json();
         if (data.url) {
           window.open(data.url, '_blank');
@@ -800,7 +915,7 @@
       const oldText = btn.textContent;
       btn.textContent = '发送中...';
       try {
-        const resp = await fetch(`/api/report/${currentFilename}/feishu`, { method: 'POST' });
+        const resp = await fetch(reportApiUrl(currentFilename, '/feishu'), { method: 'POST' });
         const data = await resp.json();
         if (!resp.ok) throw new Error(data.error || '发送失败');
         btn.textContent = '已发送';
@@ -874,6 +989,7 @@
       const checked = selectedFiles.has(h.filename) ? 'checked' : '';
       const selectedCls = selectedFiles.has(h.filename) ? 'selected' : '';
       const fileAttr = escapeAttr(h.filename);
+      const hasMarkdown = h.hasMarkdown ? '1' : '0';
 
       return `<div class="checkbox-row flex items-center gap-3 py-2.5 border-b border-gray-100 last:border-0 ${selectedCls}">
         <input type="checkbox" ${checked} data-filename="${fileAttr}" onchange="toggleSelect(this.dataset.filename, this)" class="rounded">
@@ -886,25 +1002,28 @@
         </div>
         <span class="text-xs text-gray-400 shrink-0">${date}</span>
         <div class="flex gap-1 shrink-0">
-          <button data-filename="${fileAttr}" onclick="viewHistory(this.dataset.filename)" class="text-xs text-blue-600 hover:underline">查看</button>
-          <button data-filename="${fileAttr}" onclick="openTagModal(this.dataset.filename)" class="text-xs text-gray-400 hover:text-gray-600 ml-1">🏷</button>
+          <button data-filename="${fileAttr}" data-has-markdown="${hasMarkdown}" onclick="viewHistory(this.dataset.filename, this.dataset.hasMarkdown === '1')" class="text-xs text-blue-600 hover:underline">查看</button>
+          <button data-filename="${fileAttr}" onclick="openTagModal(this.dataset.filename)" class="text-xs text-gray-500 hover:text-gray-700 ml-1">标签</button>
         </div>
       </div>`;
     }
 
-    async function viewHistory(filename) {
+    async function viewHistory(filename, hasMarkdown = true) {
       try {
-        const resp = await fetch(`/api/report/${filename}`);
+        const resp = await fetch(reportApiUrl(filename));
         const data = await resp.json();
+        if (!resp.ok) throw new Error(data.error || '报告不存在');
         currentData = data;
         currentFilename = filename;
 
         const mdFilename = filename.replace('.json', '.md');
         let markdown = null;
-        try {
-          const mdResp = await fetch(`/output/${mdFilename}`);
-          if (mdResp.ok) markdown = await mdResp.text();
-        } catch {}
+        if (hasMarkdown) {
+          try {
+            const mdResp = await fetch(outputFileUrl(mdFilename));
+            if (mdResp.ok) markdown = await mdResp.text();
+          } catch {}
+        }
 
         currentData.markdown = markdown;
         showReport(currentData);
@@ -922,7 +1041,7 @@
 
       try {
         await Promise.all(filenames.map(async (filename) => {
-          const resp = await fetch(`/api/report/${encodeURIComponent(filename)}`, { method: 'DELETE' });
+          const resp = await fetch(reportApiUrl(filename), { method: 'DELETE' });
           const result = await resp.json();
           if (!resp.ok) throw new Error(result.error || '删除失败');
           return result;
@@ -1028,13 +1147,17 @@
     let tagModalFilename = null;
 
     function openTagModal(filename) {
+      if (!filename) return;
       tagModalFilename = filename;
       const modal = document.getElementById('tag-modal');
       const content = document.getElementById('tag-modal-content');
 
       // 获取当前标签
-      fetch(`/api/report/${filename}`)
-        .then(r => r.json())
+      fetch(reportApiUrl(filename))
+        .then((r) => {
+          if (!r.ok) throw new Error('报告不存在');
+          return r.json();
+        })
         .then(data => {
           const currentTags = data._tags || [];
 
@@ -1044,9 +1167,9 @@
               <div class="flex flex-wrap gap-2" id="preset-tags-list">
                 ${presetTags.map(t => {
                   const active = currentTags.includes(t);
-                  return `<button type="button" data-tag="${t}" data-active="${active ? '1' : '0'}" onclick="togglePresetTag(this)"
+                  return `<button type="button" data-tag="${escapeAttr(t)}" data-active="${active ? '1' : '0'}" onclick="togglePresetTag(this)"
                     class="tag tag-${t} cursor-pointer transition-all ${active ? 'ring-2 ring-offset-1 ring-blue-400 opacity-100' : 'opacity-40 hover:opacity-70'}">
-                    ${active ? '✓ ' : ''}${t}
+                    ${active ? '✓ ' : ''}${escapeHTML(t)}
                   </button>`;
                 }).join('')}
               </div>
@@ -1056,7 +1179,7 @@
               <div id="custom-tags-list" class="flex flex-wrap gap-2 mb-2">
                 ${currentTags.filter(t => !presetTags.includes(t)).map(t => `
                   <span class="tag tag-custom flex items-center gap-1">
-                    ${t}
+                    ${escapeHTML(t)}
                     <button onclick="this.parentElement.remove()" class="text-purple-400 hover:text-purple-700">×</button>
                   </span>
                 `).join('')}
@@ -1070,6 +1193,9 @@
             </div>
           `;
           modal.classList.remove('hidden');
+        })
+        .catch((err) => {
+          alert('标签加载失败: ' + err.message);
         });
     }
 
@@ -1095,12 +1221,19 @@
       const list = document.getElementById('custom-tags-list');
       const span = document.createElement('span');
       span.className = 'tag tag-custom flex items-center gap-1';
-      span.innerHTML = `${val}<button onclick="this.parentElement.remove()" class="text-purple-400 hover:text-purple-700">×</button>`;
+      span.append(document.createTextNode(val));
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.textContent = '×';
+      removeBtn.className = 'text-purple-400 hover:text-purple-700';
+      removeBtn.onclick = () => span.remove();
+      span.append(removeBtn);
       list.appendChild(span);
       input.value = '';
     }
 
     async function saveTagModal() {
+      if (!tagModalFilename) return;
       // 读取选中的预设标签
       const presetBtns = document.querySelectorAll('#preset-tags-list button[data-active="1"]');
       const presetChecked = Array.from(presetBtns).map(b => b.dataset.tag);
@@ -1108,7 +1241,7 @@
       const customTags = Array.from(customSpans).map(s => s.textContent.replace('×', '').trim());
       const all = [...new Set([...presetChecked, ...customTags])];
 
-      await fetch(`/api/tags/${tagModalFilename}`, {
+      await fetch(tagApiUrl(tagModalFilename), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tags: all }),
@@ -1117,7 +1250,7 @@
       closeTagModal();
       // 刷新
       if (currentFilename === tagModalFilename) {
-        const resp = await fetch(`/api/report/${tagModalFilename}`);
+        const resp = await fetch(reportApiUrl(tagModalFilename));
         const data = await resp.json();
         renderReportTags(data._tags || []);
       }

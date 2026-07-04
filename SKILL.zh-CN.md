@@ -66,14 +66,6 @@ npm run web
 
 打开 `http://localhost:3000`。可以用 Web UI 新建查询、查看历史、管理登录态、导出 PDF，以及发送到飞书。
 
-如果需要本地服务常驻后台，运行：
-
-```bash
-npm run service:install
-```
-
-之后直接在浏览器打开 `http://localhost:3000`。服务管理命令包括 `npm run service:status`、`npm run service:stop`、`npm run service:start` 和 `npm run service:uninstall`。
-
 ## CLI
 
 单条查询：

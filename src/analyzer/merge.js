@@ -9,10 +9,10 @@ import { extractContactsFromText, mergeContacts } from '../utils/contacts.js';
  * - 同名字段取非空值，多个非空取优先级最高的
  */
 export function mergeData(query, platformResults, companyData = null) {
-  const { name, company } = query;
+  const { name, company, depth } = query;
 
   const merged = {
-    query: { name, company },
+    query: { name, company, ...(depth ? { depth } : {}) },
     fetchedAt: new Date().toISOString(),
     platforms: {},
     // 跨平台合并后的统一画像

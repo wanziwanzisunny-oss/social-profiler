@@ -360,6 +360,13 @@ export function buildFeishuMarkdownCard(merged, analysis, options = {}) {
     lines.push('');
   }
 
+  const angleLines = buildFeishuAnglesLines(query, analysis.analysisAngles, { limit: 2, textLimit: 180 });
+  if (angleLines.length) {
+    lines.push('**🔎 多角度分析**');
+    lines.push(...angleLines);
+    lines.push('');
+  }
+
   // 链接
   const links = buildFeishuProfileLinks(platforms);
   if (links.length) {
@@ -418,7 +425,7 @@ export function buildFeishuProfileCard(merged, analysis, options = {}) {
   };
 }
 
-function buildFeishuCardSections({ unified, analysis, sourceSummary }) {
+function buildFeishuCardSections({ query, unified, analysis, sourceSummary }) {
   unified = unified || {};
   analysis = analysis || {};
   const company = analysis.company || {};
@@ -470,6 +477,11 @@ function buildFeishuCardSections({ unified, analysis, sourceSummary }) {
   }
   if (adviceLines.length) sections.push(adviceLines.join('\n'));
 
+  const angleLines = buildFeishuAnglesLines(query, analysis.analysisAngles, { limit: 2, textLimit: 200 });
+  if (angleLines.length) {
+    sections.push(['**🔎 多角度分析**', ...angleLines].join('\n'));
+  }
+
   if (!sections.length) {
     sections.push('**数据来源**：暂无可用来源');
   }
@@ -504,6 +516,43 @@ function buildFeishuCompactWarnings(excluded = [], warnings = []) {
     '**数据可信度提示**',
     ...notes.map((item) => `- ${formatFeishuValue(item, 180)}`),
   ].join('\n');
+}
+
+function buildFeishuAnglesLines(query = {}, angles = {}, options = {}) {
+  if (query?.depth !== 'deep' || !angles) return [];
+
+  const { limit = 2, textLimit = 180 } = options;
+  const groups = [
+    ['证据依据', angles.evidenceBasis],
+    ['业务机会', angles.businessOpportunities],
+    ['风险提醒', angles.riskNotes],
+    ['下一步行动', angles.nextActions],
+  ];
+
+  return groups.flatMap(([label, values]) => {
+    const items = normalizeFeishuList(values).slice(0, limit);
+    if (!items.length) return [];
+    return [
+      `**${label}**`,
+      ...items.map(item => `- ${formatFeishuValue(stripLeadingListMarker(item), textLimit)}`),
+    ];
+  });
+}
+
+function normalizeFeishuList(value) {
+  if (Array.isArray(value)) {
+    return value
+      .map(item => {
+        if (typeof item === 'string') return item.trim();
+        if (typeof item === 'object' && item !== null) {
+          return item.title || item.name || item.text || item.label || JSON.stringify(item);
+        }
+        return String(item ?? '').trim();
+      })
+      .filter(Boolean);
+  }
+  if (typeof value === 'string' && value.trim()) return [value.trim()];
+  return [];
 }
 
 function compactBullet(label, value) {

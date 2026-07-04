@@ -35,6 +35,15 @@ async function saveTags(tags) {
   await fs.writeFile(TAGS_FILE, JSON.stringify(tags, null, 2), 'utf-8');
 }
 
+async function fileExists(filePath) {
+  try {
+    await fs.access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function isReportFilename(filename) {
   return path.basename(filename) === filename
     && filename.endsWith('.json')
@@ -227,6 +236,7 @@ app.get('/api/history', async (req, res) => {
           name,
           company,
           tags: fileTags,
+          hasMarkdown: await fileExists(path.join(config.outputDir, f.replace(/\.json$/, '.md'))),
         };
       })
     );
@@ -475,9 +485,8 @@ app.post('/api/lookup', async (req, res) => {
 
 // ==================== 启动 ====================
 const PORT = process.env.PORT || 3000;
-const HOST = process.env.HOST || '127.0.0.1';
 
-app.listen(PORT, HOST, () => {
+app.listen(PORT, () => {
   console.log(`\n  Social Profiler Web UI`);
   console.log(`  http://localhost:${PORT}\n`);
 });

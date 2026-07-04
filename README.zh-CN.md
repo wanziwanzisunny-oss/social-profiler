@@ -135,25 +135,6 @@ npm run web
 http://localhost:3000
 ```
 
-如果希望本地服务长期在后台运行，安装一次后台服务：
-
-```bash
-npm run service:install
-```
-
-安装后，之后只需要在浏览器打开 `http://localhost:3000`。后台服务默认只监听本机 `127.0.0.1`，不会开放给局域网其他设备。
-
-服务管理命令：
-
-```bash
-npm run service:status
-npm run service:stop
-npm run service:start
-npm run service:uninstall
-```
-
-服务日志保存在 `output/logs/`，不会提交到 Git。
-
 Web UI 支持：
 
 - 新建查询。
@@ -231,6 +212,6 @@ node --test tests/*.test.js
 期望结果：
 
 ```text
-60 pass
+79 pass
 0 fail
 ```

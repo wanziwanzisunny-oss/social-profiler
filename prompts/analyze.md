@@ -3,12 +3,22 @@
 ## 输入数据
 {{RAW_DATA}}
 
+## 动态证据摘要
+{{EVIDENCE_SUMMARY}}
+
+## 模式要求
+{{DEPTH_GUIDANCE}}
+
 ## 分析策略
 
 **先判断数据充足度**：
 - 如果有 LinkedIn 个人主页数据 → 以个人画像为主，公司信息为辅
 - 如果只有公司维度数据（companyResearch、公司 LinkedIn）→ 以公司画像为主，从公司角度推断目标人物的角色和切入点
 - 如果个人+公司数据都不足 → 基于有限信息给出最可能的推断，并标注置信度
+- 如果“动态证据摘要”存在可信个人动态，必须优先用于 `person.personality`、`person.hobbies`、`person.communicationStyle`、`person.recentConcerns` 和 `salesInsights.entryPoints`，并写出基于哪些帖子/话题得出的结论
+- 如果“动态证据摘要”存在可信公司动态、新闻、招聘或业务信号，必须优先用于 `company.recentNews`、`company.mainProducts`、`company.targetMarket`、`salesInsights.timing` 和商务切入点
+- deep 模式会提供更多动态证据；不要因为输入内容变多而只做泛泛总结，要把动态里的高频主题、近期事件、产品/业务线索转化为更具体的画像和销售建议
+- quick 模式不要输出 `analysisAngles`，只输出基础结构，避免快速报告变复杂
 
 ## 分析维度
 
@@ -74,6 +84,14 @@
 - 推荐通过公司官网/LinkedIn 公司页了解后再接触
 - 话术建议从公司业务角度切入
 
+### deep 模式额外分析角度
+仅 deep 模式输出 `analysisAngles`。quick 模式不要输出 `analysisAngles`。
+
+1. **证据依据 `evidenceBasis`**：列出最关键的公开证据，并写明它支持了哪个判断。
+2. **业务机会 `businessOpportunities`**：从公司业务、岗位招聘、近期动态、个人关注点中提炼可切入的机会。
+3. **风险提醒 `riskNotes`**：指出数据缺口、来源可信度、账号匹配风险、不可过度推断的地方。
+4. **下一步行动 `nextActions`**：给出可执行动作，例如核对官网页面、准备 LinkedIn 开场、关注某个产品/招聘信号。
+
 ## 输出要求
 - 用 JSON 格式输出，结构如下：
 ```json
@@ -101,14 +119,22 @@
     "suggestedApproach": "...",
     "bestChannel": "...",
     "timing": "..."
+  },
+  "analysisAngles": {
+    "evidenceBasis": [],
+    "businessOpportunities": [],
+    "riskNotes": [],
+    "nextActions": []
   }
 }
 ```
+- `analysisAngles` 仅 deep 模式输出；quick 模式不要输出 `analysisAngles`
 - 有数据支撑的结论才写，没有数据的标注"数据不足，无法判断"
 - 性格推断要有依据（"从XX帖子中可以看出..."）
 - 如果是公司维度推断的结论，标注"（基于公司信息推断）"
 - 商务建议要具体可执行
 - Google 的 `companyWebsite`、`companyLinkedinUrl`、`companyInstagramUrl`、`companyFacebookUrl`、`companyXUrl`、`newsArticles`、`jobs`、`businessResults` 是公司画像的重要依据；不要只把它们当作普通链接列表
 - `quick` 抓取可能没有 LinkedIn 详情页和动态；没有工作经历/教育/技能时，不要编造，标注数据不足
+- 如果存在“动态证据摘要”，说明 deep/动态抓取拿到了可用证据。输出必须比 quick 更重视近期动态、内容主题、互动线索和可执行开场话题
 - 只有可信个人 Instagram/Facebook/X 数据才能分析人物社交活跃度和内容偏好；可信公司 Instagram/Facebook/X 只能分析公司内容和产品方向；低可信或排除的数据只能作为风险提示
 - 语言：{{LANG}}

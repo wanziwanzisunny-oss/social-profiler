@@ -235,6 +235,50 @@ test('buildFeishuProfileCard builds an interactive customer profile card', () =>
   assert.equal(actions.actions.find(action => action.text.content === 'LinkedIn').type, 'default');
 });
 
+test('Feishu messages include multi-angle analysis only for deep reports', () => {
+  const merged = {
+    query: { name: 'Jane Doe', company: 'Acme', depth: 'deep' },
+    platforms: {},
+    unified: { name: 'Jane Doe' },
+  };
+  const analysis = {
+    company: { name: 'Acme' },
+    salesInsights: { entryPoints: [] },
+    analysisAngles: {
+      evidenceBasis: ['LinkedIn 动态多次提到 pipeline automation。'],
+      businessOpportunities: ['围绕 CRM 数据清洗提出试点。'],
+      riskNotes: ['Instagram 信息不足。'],
+      nextActions: ['先核对公司官网产品页。'],
+    },
+  };
+
+  const card = buildFeishuProfileCard(merged, analysis);
+  const cardText = card.elements
+    .filter(el => el.tag === 'markdown')
+    .map(el => el.content)
+    .join('\n');
+  const markdown = buildFeishuMarkdownCard(merged, analysis);
+
+  assert.match(cardText, /多角度分析/);
+  assert.match(cardText, /pipeline automation/);
+  assert.match(markdown, /多角度分析/);
+  assert.match(markdown, /CRM 数据清洗/);
+
+  const quickMerged = {
+    ...merged,
+    query: { name: 'Jane Doe', company: 'Acme', depth: 'quick' },
+  };
+  const quickCard = buildFeishuProfileCard(quickMerged, analysis);
+  const quickCardText = quickCard.elements
+    .filter(el => el.tag === 'markdown')
+    .map(el => el.content)
+    .join('\n');
+  const quickMarkdown = buildFeishuMarkdownCard(quickMerged, analysis);
+
+  assert.doesNotMatch(quickCardText, /多角度分析/);
+  assert.doesNotMatch(quickMarkdown, /多角度分析/);
+});
+
 test('buildFeishuProfileCard tolerates null optional profile sections', () => {
   const card = buildFeishuProfileCard({
     query: { name: 'Null Fields', company: 'Acme' },

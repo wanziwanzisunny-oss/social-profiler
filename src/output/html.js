@@ -44,6 +44,7 @@ export function generateHtml(data, analysis) {
   const companyHtml = buildCompany(analysis.company);
   const personHtml = buildPerson(analysis.person);
   const salesHtml = buildSales(analysis.salesInsights);
+  const anglesHtml = data.query?.depth === 'deep' ? buildAngles(analysis.analysisAngles) : '';
   const sourcesHtml = buildSources(platforms, data.companyResearch);
 
   return `<!DOCTYPE html>
@@ -85,6 +86,11 @@ table tr:last-child th,table tr:last-child td{border-bottom:none}
 .entry-list li::before{content:counter(entry);position:absolute;left:0;top:10px;width:24px;height:24px;background:#2563eb;color:#fff;border-radius:50%;font-size:12px;display:flex;align-items:center;justify-content:center;font-weight:700}
 .approach-box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 18px;margin:10px 0;font-size:14px}
 .approach-box .label{font-weight:700;color:#475569;margin-bottom:4px}
+.angle-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.angle-card{background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px}
+.angle-card h3{font-size:14px;font-weight:750;color:#334155;margin-bottom:8px}
+.angle-card ul{list-style:disc;padding-left:18px}
+.angle-card li{font-size:14px;color:#334155;margin:6px 0}
 .source-block{margin-bottom:16px}
 .source-heading{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
 .source-heading h4{font-size:15px;font-weight:700;color:#111827;padding-bottom:6px;border-bottom:2px solid #2563eb;display:inline-block}
@@ -96,7 +102,7 @@ table tr:last-child th,table tr:last-child td{border-bottom:none}
 .source-list a:hover{text-decoration:underline}
 .warn-badge{display:inline-block;background:#fffbeb;color:#92400e;border:1px solid #fde68a;padding:2px 10px;border-radius:999px;font-size:13px;margin:4px 0}
 .footer{text-align:center;color:#94a3b8;font-size:12px;margin-top:28px;padding-top:16px;border-top:1px solid #e5e7eb}
-@media(max-width:640px){.container{padding:16px 12px 40px}.header{padding:20px 18px}.header h1{font-size:20px}.info-grid{grid-template-columns:1fr}.info-grid .label{text-align:left;margin-top:8px}.section{padding:18px 16px}}
+@media(max-width:640px){.container{padding:16px 12px 40px}.header{padding:20px 18px}.header h1{font-size:20px}.info-grid{grid-template-columns:1fr}.info-grid .label{text-align:left;margin-top:8px}.section{padding:18px 16px}.angle-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -110,6 +116,7 @@ table tr:last-child th,table tr:last-child td{border-bottom:none}
   ${companyHtml}
   ${personHtml}
   ${salesHtml}
+  ${anglesHtml}
   ${sourcesHtml}
 
   <div class="footer">Social Profiler · 由 Claude 生成</div>
@@ -276,6 +283,50 @@ function buildSales(s) {
   return `<div class="section">
     <div class="section-title"><span class="icon">💡</span>商务切入点</div>
     ${inner}
+  </div>`;
+}
+
+function safeList(val) {
+  if (Array.isArray(val)) {
+    return val
+      .map(item => {
+        if (typeof item === 'string') return item.trim();
+        if (typeof item === 'object' && item !== null) {
+          return item.title || item.name || item.text || item.label || JSON.stringify(item);
+        }
+        return String(item ?? '').trim();
+      })
+      .filter(Boolean);
+  }
+  if (typeof val === 'string' && val.trim()) return [val.trim()];
+  return [];
+}
+
+function angleCard(title, values) {
+  const items = safeList(values);
+  if (!items.length) return '';
+
+  return `<div class="angle-card">
+    <h3>${esc(title)}</h3>
+    <ul>${items.map(item => `<li>${esc(item)}</li>`).join('')}</ul>
+  </div>`;
+}
+
+function buildAngles(angles = {}) {
+  if (!angles) return '';
+
+  const cards = [
+    angleCard('证据依据', angles.evidenceBasis),
+    angleCard('业务机会', angles.businessOpportunities),
+    angleCard('风险提醒', angles.riskNotes),
+    angleCard('下一步行动', angles.nextActions),
+  ].filter(Boolean);
+
+  if (!cards.length) return '';
+
+  return `<div class="section">
+    <div class="section-title"><span class="icon">🔎</span>多角度分析</div>
+    <div class="angle-grid">${cards.join('')}</div>
   </div>`;
 }
 

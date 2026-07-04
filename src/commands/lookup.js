@@ -361,7 +361,7 @@ export async function executeLookup(query, options = {}, deps = {}, onProgress =
           throwIfAborted(signal);
           linkedinData = result.data;
           const partialPlatformResults = { google: googleData, linkedin: linkedinData, instagram: null, facebook: null };
-          const partialMerged = mergeData({ name, company }, partialPlatformResults, companyData);
+          const partialMerged = mergeData({ name, company, depth }, partialPlatformResults, companyData);
 
           earlyAnalysisPromise = (async () => {
             try {
@@ -426,7 +426,7 @@ export async function executeLookup(query, options = {}, deps = {}, onProgress =
     x: xData,
     companyX: companyXData,
   };
-  const merged = mergeData({ name, company }, platformResults, companyData);
+  const merged = mergeData({ name, company, depth }, platformResults, companyData);
 
   // ==================== Phase 4: LLM 分析 ====================
   throwIfAborted(signal);
