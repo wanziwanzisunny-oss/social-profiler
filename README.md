@@ -121,7 +121,7 @@ Session files are stored under `sessions/` and must stay private.
 
 ## Web UI
 
-Start the local Web UI:
+Start the local Web UI for the current terminal session:
 
 ```bash
 npm run web
@@ -132,6 +132,25 @@ Open:
 ```text
 http://localhost:3000
 ```
+
+To keep the local service running in the background, install it once:
+
+```bash
+npm run service:install
+```
+
+After that, open `http://localhost:3000` in your browser whenever you need the app. The background service listens on local-only `127.0.0.1` by default, so it is not exposed to other devices on the network.
+
+Service commands:
+
+```bash
+npm run service:status
+npm run service:stop
+npm run service:start
+npm run service:uninstall
+```
+
+Service logs are written to `output/logs/` and are not committed to Git.
 
 Use the Web UI to:
 

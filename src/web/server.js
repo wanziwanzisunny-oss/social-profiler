@@ -475,8 +475,9 @@ app.post('/api/lookup', async (req, res) => {
 
 // ==================== 启动 ====================
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || '127.0.0.1';
 
-app.listen(PORT, () => {
+app.listen(PORT, HOST, () => {
   console.log(`\n  Social Profiler Web UI`);
   console.log(`  http://localhost:${PORT}\n`);
 });
